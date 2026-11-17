@@ -1,7 +1,6 @@
 # 🍷 Licorería EM - Sistema Inteligente de Control y POS Serverless
 
 🌐 **Demo en Vivo:** [Visitar Licorería EM](https://licoreria-em.netlify.app)
-*(Nota: Si el sistema está en Modo Demo, muestra datos interactivos de prueba. Para uso real, requiere conexión al backend).*
 
 Un sistema de Punto de Venta (POS) ultrarrápido y gestión de inventario diseñado para resolver los desafíos de una licorería con alta rotación de productos. El sistema elimina el uso de cuadernos manuales, previniendo quiebres de stock en horarios pico (fines de semana) y calculando la ganancia neta exacta en cada transacción.
 
@@ -42,9 +41,6 @@ La persistencia de datos maneja un archivo estructurado de Google Sheets (`bd_pr
 
 **Hosting:**
 * Netlify (Edge CDN)
-
-🌐 **Demo en Vivo:** [Visitar Licorería EM](https://licoreria-em.netlify.app/)
-*(Nota: Si el sistema está en Modo Demo, muestra datos interactivos de prueba. Para uso real, requiere conexión al backend).*
 
 ## 🚀 Instalación y Uso Local
 
