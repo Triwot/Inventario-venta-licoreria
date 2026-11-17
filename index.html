@@ -1,0 +1,3125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Licoreria Emi — Gestión de Inventario & Ventas</title>
+  <!-- Tipografías Sans-Serif Modernas -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      /* Paleta Principal: Blanco, Gris Muy Claro, Soft Pink & Rose Gold */
+      --bg-primary: #FFFFFF;
+      --bg-canvas: #FCFAFB;
+      --bg-container: #F6F3F5;
+      --bg-card: rgba(255, 255, 255, 0.88);
+      --bg-input: #F9F7F8;
+      --bg-input-focus: #FFFFFF;
+
+      /* Acentos Soft Pink & Rose Gold */
+      --soft-pink-light: #FDF2F4;
+      --soft-pink: #F6D5DC;
+      --soft-pink-medium: #EBBBC6;
+      --rose-gold-light: #D99B9E;
+      --rose-gold: #B76E79;
+      --rose-gold-dark: #9B5661;
+      --rose-gold-gradient: linear-gradient(135deg, #CFA0A8 0%, #B76E79 55%, #A35B66 100%);
+      --soft-surface-gradient: linear-gradient(145deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 244, 246, 0.88) 100%);
+
+      /* Texto */
+      --text-primary: #2D2327;
+      --text-secondary: #6E5D63;
+      --text-muted: #A39298;
+
+      /* Estados y Alertas */
+      --success-bg: #F2FAF6;
+      --success-text: #2F7A5A;
+      --success-border: #C3E7D6;
+
+      --warning-bg: #FFF8F1;
+      --warning-text: #B86B28;
+      --warning-border: #F5DEC6;
+
+      --error-bg: #FDF3F4;
+      --error-text: #C94A5A;
+      --error-border: #F5C2C8;
+
+      /* Bordes y Sombras Soft UI / Glassmorphism */
+      --border-soft: rgba(183, 110, 121, 0.15);
+      --border-card: rgba(255, 255, 255, 0.92);
+      --shadow-soft: 0 20px 50px -12px rgba(183, 110, 121, 0.11), 0 4px 16px -2px rgba(45, 35, 39, 0.03);
+      --shadow-card-sm: 0 8px 24px -6px rgba(183, 110, 121, 0.09);
+      --shadow-inner-soft: inset 0 1px 2px rgba(45, 35, 39, 0.03);
+      --shadow-btn: 0 10px 24px -6px rgba(183, 110, 121, 0.42);
+      --shadow-btn-hover: 0 14px 28px -6px rgba(183, 110, 121, 0.55);
+
+      /* Radios y Transiciones */
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --transition-smooth: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-primary);
+      background-image:
+        radial-gradient(circle at 10% 15%, rgba(246, 213, 220, 0.40) 0%, transparent 42%),
+        radial-gradient(circle at 90% 85%, rgba(217, 155, 158, 0.22) 0%, transparent 45%),
+        linear-gradient(180deg, #FFFFFF 0%, #FCFAFB 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Esferas ambientales decorativas */
+    .ambient-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(75px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.55;
+    }
+    .ambient-orb.orb-1 {
+      width: 380px;
+      height: 380px;
+      background: var(--soft-pink);
+      top: -120px;
+      right: -90px;
+    }
+    .ambient-orb.orb-2 {
+      width: 320px;
+      height: 320px;
+      background: #F4DCE0;
+      bottom: -100px;
+      left: -80px;
+    }
+
+    /* Contenedor Principal */
+    .app-shell {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 24px 68px;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+
+    /* Topbar & Menú de Navegación Glassmorphism */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+      padding: 16px 24px;
+      background: rgba(246, 243, 245, 0.80);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 15px;
+      background: var(--rose-gold-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFFFFF;
+      box-shadow: 0 6px 16px rgba(183, 110, 121, 0.32);
+      flex-shrink: 0;
+    }
+
+    .brand-icon svg {
+      width: 23px;
+      height: 23px;
+      stroke-width: 1.9;
+    }
+
+    .brand-text h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.28rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+
+    .brand-text span {
+      display: block;
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--rose-gold);
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin-top: 1px;
+    }
+
+    /* Pestañas de navegación */
+    .nav-tabs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #EFEAEE;
+      padding: 6px;
+      border-radius: 18px;
+      border: 1px solid rgba(183, 110, 121, 0.09);
+      flex-wrap: wrap;
+    }
+
+    .nav-tab {
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.86rem;
+      font-weight: 600;
+      padding: 11px 18px;
+      border-radius: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      transition: var(--transition-smooth);
+      position: relative;
+      white-space: nowrap;
+    }
+
+    .nav-tab svg {
+      width: 18px;
+      height: 18px;
+      color: var(--rose-gold);
+      transition: var(--transition-smooth);
+    }
+
+    .nav-tab:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .nav-tab.active {
+      background: var(--bg-primary);
+      color: var(--rose-gold-dark);
+      box-shadow: 0 4px 14px rgba(183, 110, 121, 0.15), 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .nav-tab.active svg {
+      color: var(--rose-gold-dark);
+      transform: scale(1.06);
+    }
+
+    .nav-badge-alert {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 6px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      background: var(--soft-pink);
+      color: var(--rose-gold-dark);
+    }
+
+    /* Vistas SPA */
+    .view-section {
+      display: none;
+      animation: fadeSlideIn 0.36s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    .view-section.active {
+      display: block;
+    }
+
+    @keyframes fadeSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Layout para las vistas de Formularios (Venta / Ingreso) */
+    .form-workspace {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 28px;
+      align-items: start;
+    }
+
+    @media (max-width: 920px) {
+      .form-workspace {
+        grid-template-columns: 1fr;
+      }
+      .topbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .nav-tabs {
+        width: 100%;
+        justify-content: center;
+      }
+      .nav-tab {
+        flex: 1;
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .nav-tabs {
+        flex-direction: column;
+      }
+      .nav-tab {
+        width: 100%;
+      }
+    }
+
+    /* Tarjeta principal del formulario (Soft UI / Glassmorphism) */
+    .form-card {
+      background: var(--bg-container);
+      border-radius: var(--radius-xl);
+      padding: 8px;
+      border: 1px solid rgba(183, 110, 121, 0.12);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .form-card-inner {
+      background: var(--soft-surface-gradient);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: calc(var(--radius-xl) - 6px);
+      padding: 34px 32px;
+      border: 1px solid var(--border-card);
+    }
+
+    @media (max-width: 540px) {
+      .form-card-inner {
+        padding: 24px 18px;
+      }
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 26px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(183, 110, 121, 0.12);
+    }
+
+    .card-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: var(--soft-pink-light);
+      border: 1px solid var(--soft-pink);
+      color: var(--rose-gold-dark);
+      font-size: 0.73rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 9px;
+    }
+
+    .card-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .card-subtitle {
+      font-size: 0.89rem;
+      color: var(--text-secondary);
+      margin-top: 5px;
+      line-height: 1.5;
+    }
+
+    .card-header-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      background: var(--soft-pink-light);
+      border: 1px solid var(--soft-pink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--rose-gold);
+      flex-shrink: 0;
+    }
+
+    .card-header-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    /* Grilla de Campos de Formulario */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    @media (max-width: 580px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .form-label span.required-dot {
+      color: var(--rose-gold);
+      font-weight: 700;
+      margin-left: 3px;
+    }
+
+    .readonly-badge {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--rose-gold-dark);
+      background: var(--soft-pink-light);
+      border: 1px solid var(--soft-pink);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .editable-badge {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--success-text);
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    /* Switch / Radio Buttons para ¿Producto Existente? o ¿Nuevo Producto? */
+    .product-mode-switch {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background: #EFEAEE;
+      padding: 5px;
+      border-radius: 15px;
+      border: 1px solid rgba(183, 110, 121, 0.12);
+    }
+
+    .mode-option {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 11px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      user-select: none;
+      text-align: center;
+    }
+
+    .mode-option input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .mode-option svg {
+      width: 16px;
+      height: 16px;
+      color: var(--rose-gold);
+      transition: var(--transition-smooth);
+    }
+
+    .mode-option:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.45);
+    }
+
+    .mode-option.active {
+      background: var(--bg-primary);
+      color: var(--rose-gold-dark);
+      box-shadow: 0 3px 12px rgba(183, 110, 121, 0.15);
+    }
+
+    .mode-option.active svg {
+      color: var(--rose-gold-dark);
+      transform: scale(1.06);
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 15px;
+      color: var(--rose-gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      transition: var(--transition-smooth);
+      z-index: 2;
+    }
+
+    .input-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .input-prefix {
+      position: absolute;
+      left: 42px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: var(--rose-gold-dark);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .form-input {
+      width: 100%;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.93rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      background: var(--bg-input);
+      border: 1.5px solid rgba(183, 110, 121, 0.16);
+      border-radius: var(--radius-md);
+      padding: 13px 16px 13px 44px;
+      box-shadow: var(--shadow-inner-soft);
+      transition: var(--transition-smooth);
+      outline: none;
+    }
+
+    .form-input.has-prefix {
+      padding-left: 70px;
+    }
+
+    .form-input[readonly] {
+      background-color: #F4EFF2;
+      color: var(--rose-gold-dark);
+      font-weight: 600;
+      cursor: not-allowed;
+      border-color: rgba(183, 110, 121, 0.22);
+    }
+
+    /* Estilo elegante para el elemento <select> */
+    .form-select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      padding-right: 42px;
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23B76E79' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      background-size: 18px;
+    }
+
+    .form-input::placeholder {
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .form-input:not([readonly]):hover {
+      border-color: rgba(183, 110, 121, 0.32);
+      background-color: #FCF9FA;
+    }
+
+    .form-input:not([readonly]):focus {
+      background-color: var(--bg-input-focus);
+      border-color: var(--rose-gold);
+      box-shadow: 0 0 0 4px rgba(246, 213, 220, 0.55);
+    }
+
+    .form-input.input-error {
+      border-color: var(--error-text);
+      background-color: var(--error-bg);
+    }
+
+    .field-error {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--error-text);
+      min-height: 16px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      opacity: 0;
+      transform: translateY(-3px);
+      transition: var(--transition-smooth);
+    }
+
+    .field-error.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .hidden-control {
+      display: none !important;
+    }
+
+    /* Barra de previsualización financiera en tiempo real */
+    .live-preview-bar {
+      margin-top: 10px;
+      margin-bottom: 22px;
+      padding: 16px 20px;
+      border-radius: var(--radius-lg);
+      background: var(--soft-pink-light);
+      border: 1px solid var(--soft-pink);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .preview-metric {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .preview-metric span.metric-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+    }
+
+    .preview-metric strong.metric-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--rose-gold-dark);
+    }
+
+    /* Botones Principales Rose Gold */
+    .btn-submit {
+      width: 100%;
+      appearance: none;
+      border: none;
+      border-radius: var(--radius-md);
+      background: var(--rose-gold-gradient);
+      color: #FFFFFF;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      padding: 15px 24px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: var(--shadow-btn);
+      transition: var(--transition-smooth);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-submit::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+      transform: skewX(-20deg);
+      transition: left 0.6s ease;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-btn-hover);
+    }
+
+    .btn-submit:hover::after {
+      left: 140%;
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.7;
+      cursor: wait;
+      transform: none;
+    }
+
+    .btn-submit svg {
+      width: 19px;
+      height: 19px;
+      stroke-width: 2.2;
+    }
+
+    /* Panel Lateral en Vistas de Formulario */
+    .summary-card {
+      background: var(--bg-container);
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      border: 1px solid var(--border-soft);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .summary-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .summary-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .summary-title svg {
+      width: 18px;
+      height: 18px;
+      color: var(--rose-gold);
+    }
+
+    .activity-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 360px;
+      overflow-y: auto;
+    }
+
+    .activity-empty {
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 22px 12px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: var(--radius-md);
+      border: 1px dashed rgba(183, 110, 121, 0.22);
+    }
+
+    .activity-item {
+      background: var(--bg-primary);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      border: 1px solid rgba(183, 110, 121, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      animation: fadeSlideIn 0.3s ease forwards;
+    }
+
+    .activity-item-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .activity-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.74rem;
+      font-weight: 700;
+    }
+
+    .activity-dot.sale {
+      background: var(--soft-pink-light);
+      color: var(--rose-gold-dark);
+      border: 1px solid var(--soft-pink);
+    }
+
+    .activity-dot.stock {
+      background: #F4F0F5;
+      color: #7D5A78;
+      border: 1px solid #E2D6E5;
+    }
+
+    .activity-info {
+      min-width: 0;
+    }
+
+    .activity-info p {
+      font-size: 0.83rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .activity-info small {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      display: block;
+    }
+
+    .activity-amount {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--rose-gold-dark);
+      white-space: nowrap;
+    }
+
+    /* ==========================================
+       ESTILOS VISTA 3: DASHBOARD & INVENTARIO
+       ========================================== */
+    .dashboard-container {
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+
+    /* Barra de Filtro de Fechas Soft UI */
+    .filter-bar {
+      background: var(--bg-container);
+      border-radius: var(--radius-xl);
+      padding: 8px;
+      border: 1px solid var(--border-soft);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .filter-bar-inner {
+      background: var(--soft-surface-gradient);
+      backdrop-filter: blur(18px);
+      border-radius: calc(var(--radius-xl) - 6px);
+      padding: 20px 26px;
+      border: 1px solid var(--border-card);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
+
+    .filter-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .filter-icon-box {
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
+      background: var(--soft-pink-light);
+      border: 1px solid var(--soft-pink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--rose-gold);
+      flex-shrink: 0;
+    }
+
+    .filter-icon-box svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .filter-title-group h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.18rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .filter-title-group p {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .filter-controls {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    /* Botones rápidos de rango (Hoy, 7 Días, Mes, Todo) */
+    .preset-pills {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: #EFEAEE;
+      padding: 4px;
+      border-radius: 12px;
+    }
+
+    .preset-pill {
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.77rem;
+      font-weight: 600;
+      padding: 7px 12px;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+    }
+
+    .preset-pill:hover {
+      color: var(--text-primary);
+    }
+
+    .preset-pill.active {
+      background: var(--bg-primary);
+      color: var(--rose-gold-dark);
+      box-shadow: 0 2px 8px rgba(183, 110, 121, 0.15);
+    }
+
+    .date-inputs-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .date-field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-primary);
+      border: 1.5px solid rgba(183, 110, 121, 0.2);
+      border-radius: 12px;
+      padding: 7px 12px;
+      transition: var(--transition-smooth);
+    }
+
+    .date-field:focus-within {
+      border-color: var(--rose-gold);
+      box-shadow: 0 0 0 3px rgba(246, 213, 220, 0.5);
+    }
+
+    .date-field label {
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--rose-gold-dark);
+    }
+
+    .date-field input[type="date"] {
+      border: none;
+      background: transparent;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.83rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* Tarjetas de Métricas Principales (KPI Grid) */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 1024px) {
+      .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 560px) {
+      .metrics-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .metric-card {
+      background: var(--bg-container);
+      border-radius: var(--radius-lg);
+      padding: 6px;
+      border: 1px solid var(--border-soft);
+      box-shadow: var(--shadow-card-sm);
+      transition: var(--transition-smooth);
+    }
+
+    .metric-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .metric-card-inner {
+      background: var(--soft-surface-gradient);
+      border-radius: calc(var(--radius-lg) - 4px);
+      padding: 20px;
+      border: 1px solid var(--border-card);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .metric-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .metric-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .metric-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: var(--soft-pink-light);
+      border: 1px solid var(--soft-pink);
+      color: var(--rose-gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .metric-icon svg {
+      width: 19px;
+      height: 19px;
+    }
+
+    .metric-number {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .metric-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.76rem;
+      color: var(--text-secondary);
+    }
+
+    .metric-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.72rem;
+      background: var(--soft-pink-light);
+      color: var(--rose-gold-dark);
+      border: 1px solid var(--soft-pink);
+    }
+
+    .metric-progress-track {
+      width: 100%;
+      height: 6px;
+      background: #EFEAEE;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .metric-progress-fill {
+      height: 100%;
+      background: var(--rose-gold-gradient);
+      border-radius: 999px;
+      transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Panel de Estado de Stock (Dos Alertas Visuales Claras) */
+    .stock-status-section {
+      background: var(--bg-container);
+      border-radius: var(--radius-xl);
+      padding: 8px;
+      border: 1px solid var(--border-soft);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .stock-status-inner {
+      background: var(--soft-surface-gradient);
+      border-radius: calc(var(--radius-xl) - 6px);
+      padding: 28px;
+      border: 1px solid var(--border-card);
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 22px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(183, 110, 121, 0.12);
+    }
+
+    .section-heading-left h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.32rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-heading-left p {
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+      margin-top: 3px;
+    }
+
+    .alerts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 860px) {
+      .alerts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .alert-panel {
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      border: 1.5px solid rgba(183, 110, 121, 0.16);
+      box-shadow: var(--shadow-card-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .alert-panel.low-stock-panel {
+      border-top: 4px solid var(--error-text);
+    }
+
+    .alert-panel.slow-moving-panel {
+      border-top: 4px solid var(--rose-gold);
+    }
+
+    .alert-panel-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .alert-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .alert-badge-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .alert-badge-icon.critical {
+      background: var(--error-bg);
+      color: var(--error-text);
+      border: 1px solid var(--error-border);
+    }
+
+    .alert-badge-icon.stagnant {
+      background: var(--soft-pink-light);
+      color: var(--rose-gold-dark);
+      border: 1px solid var(--soft-pink);
+    }
+
+    .alert-badge-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .alert-title-wrap h4 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.08rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .alert-title-wrap span {
+      display: block;
+      font-size: 0.77rem;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .alert-count-chip {
+      padding: 4px 11px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .alert-count-chip.critical {
+      background: var(--error-bg);
+      color: var(--error-text);
+      border: 1px solid var(--error-border);
+    }
+
+    .alert-count-chip.stagnant {
+      background: var(--soft-pink-light);
+      color: var(--rose-gold-dark);
+      border: 1px solid var(--soft-pink);
+    }
+
+    .alert-items-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .alert-item-card {
+      background: var(--bg-canvas);
+      border: 1px solid rgba(183, 110, 121, 0.14);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: var(--transition-smooth);
+    }
+
+    .alert-item-card:hover {
+      background: #FFFFFF;
+      border-color: var(--rose-gold-light);
+      box-shadow: 0 6px 16px rgba(183, 110, 121, 0.08);
+    }
+
+    .alert-item-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .alert-product-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .alert-product-category {
+      font-size: 0.73rem;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .status-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 9px;
+      border-radius: 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .status-tag.urgent {
+      background: var(--error-bg);
+      color: var(--error-text);
+      border: 1px solid var(--error-border);
+    }
+
+    .status-tag.slow {
+      background: var(--warning-bg);
+      color: var(--warning-text);
+      border: 1px solid var(--warning-border);
+    }
+
+    .alert-item-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: 0.77rem;
+      color: var(--text-secondary);
+    }
+
+    .stock-level-bar {
+      flex: 1;
+      min-width: 110px;
+      height: 6px;
+      background: #EDE6EA;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .stock-level-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #C94A5A, #E2808D);
+    }
+
+    .btn-quick-action {
+      appearance: none;
+      border: 1px solid var(--soft-pink-medium);
+      background: var(--soft-pink-light);
+      color: var(--rose-gold-dark);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.74rem;
+      font-weight: 600;
+      padding: 5px 11px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-quick-action:hover {
+      background: var(--rose-gold);
+      color: #FFFFFF;
+      border-color: var(--rose-gold);
+    }
+
+    /* Tabla de Movimientos Filtrados por Fecha en el Dashboard */
+    .sales-breakdown-card {
+      background: var(--bg-container);
+      border-radius: var(--radius-xl);
+      padding: 8px;
+      border: 1px solid var(--border-soft);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .sales-breakdown-inner {
+      background: var(--soft-surface-gradient);
+      border-radius: calc(var(--radius-xl) - 6px);
+      padding: 24px 28px;
+      border: 1px solid var(--border-card);
+    }
+
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .luxury-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .luxury-table th {
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      padding: 12px 14px;
+      border-bottom: 1.5px solid rgba(183, 110, 121, 0.15);
+    }
+
+    .luxury-table td {
+      padding: 13px 14px;
+      font-size: 0.85rem;
+      color: var(--text-primary);
+      border-bottom: 1px solid rgba(183, 110, 121, 0.08);
+    }
+
+    .luxury-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .luxury-table tbody tr:hover {
+      background: rgba(253, 242, 244, 0.55);
+    }
+
+    /* Notificación Toast Flotante */
+    .toast-container {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 380px;
+      width: calc(100% - 48px);
+      pointer-events: none;
+    }
+
+    .toast {
+      pointer-events: auto;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(16px);
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+      border: 1px solid var(--soft-pink);
+      box-shadow: 0 16px 36px rgba(183, 110, 121, 0.24);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: var(--transition-smooth);
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: var(--soft-pink-light);
+      color: var(--rose-gold-dark);
+    }
+
+    .toast.error .toast-icon {
+      background: var(--error-bg);
+      color: var(--error-text);
+    }
+
+    .toast-body h4 {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .toast-body p {
+      font-size: 0.79rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2.2px solid rgba(255, 255, 255, 0.35);
+      border-top-color: #FFFFFF;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Esferas decorativas suaves -->
+  <div class="ambient-orb orb-1" aria-hidden="true"></div>
+  <div class="ambient-orb orb-2" aria-hidden="true"></div>
+
+  <div class="app-shell">
+    <!-- Barra de Navegación Superior -->
+    <header class="topbar">
+      <a href="#dashboard" class="brand" id="brandLink">
+        <div class="brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 22h8"></path>
+            <path d="M12 15v7"></path>
+            <path d="M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H9c-1.5 4-2 6-2 8a5 5 0 0 0 5 5Z"></path>
+            <path d="M7.5 7.5h9"></path>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>Licoreria Emi</h1>
+          <span>Ventas de Bebidas</span>
+        </div>
+      </a>
+
+      <!-- 3 Pestañas Interactivas SPA -->
+      <nav class="nav-tabs" role="tablist" aria-label="Navegación principal de Licorería Emi">
+        <button
+          type="button"
+          class="nav-tab active"
+          role="tab"
+          aria-selected="true"
+          aria-controls="view-venta"
+          id="tab-venta"
+          data-target="view-venta"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          Registrar Venta
+        </button>
+
+        <button
+          type="button"
+          class="nav-tab"
+          role="tab"
+          aria-selected="false"
+          aria-controls="view-ingreso"
+          id="tab-ingreso"
+          data-target="view-ingreso"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+          </svg>
+          Registrar Ingreso
+        </button>
+
+        <button
+          type="button"
+          class="nav-tab"
+          role="tab"
+          aria-selected="false"
+          aria-controls="view-dashboard"
+          id="tab-dashboard"
+          data-target="view-dashboard"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="9" rx="1"></rect>
+            <rect x="14" y="3" width="7" height="5" rx="1"></rect>
+            <rect x="14" y="12" width="7" height="9" rx="1"></rect>
+            <rect x="3" y="16" width="7" height="5" rx="1"></rect>
+          </svg>
+          Dashboard & Inventario
+          <span class="nav-badge-alert" id="navAlertCount" title="Alertas activas de stock">0</span>
+        </button>
+      </nav>
+    </header>
+
+    <!-- ==========================================
+         VISTA 1: REGISTRAR VENTA
+         ========================================== -->
+    <section id="view-venta" class="view-section active" role="tabpanel" aria-labelledby="tab-venta">
+      <div class="form-workspace">
+        <div class="form-card">
+          <div class="form-card-inner">
+            <div class="card-header">
+              <div>
+                <span class="card-badge">Punto de Venta • Licorería Emi</span>
+                <h2 class="card-title">Registrar Venta</h2>
+                <p class="card-subtitle">Selecciona la bebida del menú desplegable para cargar automáticamente su precio y costo en Bs.</p>
+              </div>
+              <div class="card-header-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="9" cy="21" r="1"></circle>
+                  <circle cx="20" cy="21" r="1"></circle>
+                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+              </div>
+            </div>
+
+            <form id="saleForm" novalidate>
+              <div class="form-grid">
+                <!-- Nombre del Producto (<select> dinámico desde data.productos) -->
+                <div class="form-group full-width">
+                  <label class="form-label" for="saleProductName">
+                    <span>Nombre del Producto <span class="required-dot">*</span></span>
+                  </label>
+                  <div class="input-wrapper">
+                    <span class="input-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                        <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                      </svg>
+                    </span>
+                    <select
+                      id="saleProductName"
+                      name="productName"
+                      class="form-input form-select"
+                      required
+                    >
+                      <option value="">Selecciona una bebida del catálogo...</option>
+                    </select>
+                  </div>
+                  <span class="field-error" id="error-saleProductName" role="alert"></span>
+                </div>
+
+                <!-- Cantidad Vendida -->
+                <div class="form-group full-width">
+                  <label class="form-label" for="saleQuantity">
+                    <span>Cantidad Vendida <span class="required-dot">*</span></span>
+                  </label>
+                  <div class="input-wrapper">
+                    <span class="input-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="8" y1="6" x2="21" y2="6"></line>
+                        <line x1="8" y1="12" x2="21" y2="12"></line>
+                        <line x1="8" y1="18" x2="21" y2="18"></line>
+                        <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                        <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                        <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                      </svg>
+                    </span>
+                    <input
+                      type="number"
+                      id="saleQuantity"
+                      name="quantitySold"
+                      class="form-input"
+                      placeholder="Ej. 2"
+                      min="1"
+                      step="1"
+                      required
+                    />
+                  </div>
+                  <span class="field-error" id="error-saleQuantity" role="alert"></span>
+                </div>
+
+                <!-- Precio de Venta (Unidad) en Bs. (Editable para descuentos rápidos) -->
+                <div class="form-group">
+                  <label class="form-label" for="saleUnitPrice">
+                    <span>Precio de Venta (Unidad) <span class="required-dot">*</span></span>
+                    <span class="editable-badge">Editable (Bs.)</span>
+                  </label>
+                  <div class="input-wrapper">
+                    <span class="input-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+                        <circle cx="12" cy="12" r="2"></circle>
+                        <path d="M6 12h.01M18 12h.01"></path>
+                      </svg>
+                    </span>
+                    <span class="input-prefix">Bs.</span>
+                    <input
+                      type="number"
+                      id="saleUnitPrice"
+                      name="unitSalePrice"
+                      class="form-input has-prefix"
+                      placeholder="0.00"
+                      min="0.01"
+                      step="0.01"
+                      required
+                    />
+                  </div>
+                  <span class="field-error" id="error-saleUnitPrice" role="alert"></span>
+                </div>
+
+                <!-- Costo de Compra (Unidad) en Bs. (Bloqueado readonly) -->
+                <div class="form-group">
+                  <label class="form-label" for="saleUnitCost">
+                    <span>Costo de Compra (Unidad) <span class="required-dot">*</span></span>
+                    <span class="readonly-badge">Automático (Bs.)</span>
+                  </label>
+                  <div class="input-wrapper">
+                    <span class="input-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                        <line x1="2" y1="10" x2="22" y2="10"></line>
+                      </svg>
+                    </span>
+                    <span class="input-prefix">Bs.</span>
+                    <input
+                      type="number"
+                      id="saleUnitCost"
+                      name="unitPurchaseCost"
+                      class="form-input has-prefix"
+                      placeholder="0.00"
+                      step="0.01"
+                      readonly
+                      required
+                    />
+                  </div>
+                  <span class="field-error" id="error-saleUnitCost" role="alert"></span>
+                </div>
+              </div>
+
+              <!-- Previsualización en tiempo real de la operación en Bs. -->
+              <div class="live-preview-bar" aria-live="polite">
+                <div class="preview-metric">
+                  <span class="metric-label">Total Venta</span>
+                  <strong class="metric-value" id="previewSaleTotal">Bs. 0.00</strong>
+                </div>
+                <div class="preview-metric">
+                  <span class="metric-label">Costo Total</span>
+                  <strong class="metric-value" id="previewSaleCost">Bs. 0.00</strong>
+                </div>
+                <div class="preview-metric">
+                  <span class="metric-label">Ganancia Estimada</span>
+                  <strong class="metric-value" id="previewSaleProfit">Bs. 0.00</strong>
+                </div>
+              </div>
+
+              <button type="submit" class="btn-submit" id="btnConfirmSale">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Confirmar Venta</span>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Actividad Reciente Lateral -->
+        <aside class="summary-card" aria-label="Últimas operaciones registradas">
+          <div class="summary-header">
+            <h3 class="summary-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+              </svg>
+              Actividad Reciente
+            </h3>
+          </div>
+          <ul class="activity-list" id="recentSalesSidebar"></ul>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         VISTA 2: REGISTRAR INGRESO DE MERCADERÍA
+         ========================================== -->
+    <section id="view-ingreso" class="view-section" role="tabpanel" aria-labelledby="tab-ingreso">
+      <div class="form-workspace">
+        <div class="form-card">
+          <div class="form-card-inner">
+            <div class="card-header">
+              <div>
+                <span class="card-badge">Abastecimiento • Bodega</span>
+                <h2 class="card-title">Registrar Ingreso de Mercadería</h2>
+                <p class="card-subtitle">Elige si deseas reponer un producto existente del catálogo o dar de alta uno nuevo.</p>
+              </div>
+              <div class="card-header-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                  <line x1="12" y1="8" x2="12" y2="16"></line>
+                  <line x1="8" y1="12" x2="16" y2="12"></line>
+                </svg>
+              </div>
+            </div>
+
+            <form id="stockForm" novalidate>
+              <div class="form-grid">
+
+                <!-- Switch / Radio Buttons: ¿Producto Existente? o ¿Nuevo Producto? -->
+                <div class="form-group full-width">
+                  <span class="form-label">Tipo de Producto a Ingresar</span>
+                  <div class="product-mode-switch" role="radiogroup" aria-label="Tipo de producto">
+                    <label class="mode-option active" id="labelModeExisting">
+                      <input type="radio" name="stockProductMode" value="existing" checked />
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                      </svg>
+                      <span>¿Producto Existente?</span>
+                    </label>
+
+                    <label class="mode-option" id="labelModeNew">
+                      <input type="radio" name="stockProductMode" value="new" />
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="16"></line>
+                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                      </svg>
+                      <span>¿Nuevo Producto?</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Nombre del Producto (Alterna entre <select> de catálogo e <input> de texto) -->
+                <div class="form-group full-width">
+                  <label class="form-label" id="stockProductLabel" for="stockProductSelect">
+                    <span>Nombre del Producto <span class="required-dot">*</span></span>
+                  </label>
+
+                  <!-- Opción 1: Menú desplegable <select> para Producto Existente -->
+                  <div class="input-wrapper" id="stockExistingWrapper">
+                    <span class="input-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                        <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                      </svg>
+                    </span>
+                    <select
+                      id="stockProductSelect"
+                      class="form-input form-select"
+                    >
+                      <option value="">Selecciona un producto existente del catálogo...</option>
+                    </select>
+                  </div>
+
+                  <!-- Opción 2: Input de texto normal para Nuevo Producto -->
+                  <div class="input-wrapper hidden-control" id="stockNewWrapper">
+                    <span class="input-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                      </svg>
+                    </span>
+                    <input
+                      type="text"
+                      id="stockProductNameInput"
+                      class="form-input"
+                      placeholder="Escribe el nombre del nuevo producto (Ej. Singani Casa Real 750ml)"
+                      autocomplete="off"
+                    />
+                  </div>
+
+                  <span class="field-error" id="error-stockProductName" role="alert"></span>
+                </div>
+
+                <!-- Cantidad Ingresada -->
+                <div class="form-group">
+                  <label class="form-label" for="stockQuantity">
+                    <span>Cantidad Ingresada <span class="required-dot">*</span></span>
+                  </label>
+                  <div class="input-wrapper">
+                    <span class="input-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                      </svg>
+                    </span>
+                    <input
+                      type="number"
+                      id="stockQuantity"
+                      name="quantityEntered"
+                      class="form-input"
+                      placeholder="Ej. 24"
+                      min="1"
+                      step="1"
+                      required
+                    />
+                  </div>
+                  <span class="field-error" id="error-stockQuantity" role="alert"></span>
+                </div>
+
+                <!-- Costo Total en Bs. -->
+                <div class="form-group">
+                  <label class="form-label" for="stockTotalCost">
+                    <span>Costo Total <span class="required-dot">*</span></span>
+                  </label>
+                  <div class="input-wrapper">
+                    <span class="input-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+                        <circle cx="12" cy="12" r="2"></circle>
+                        <path d="M6 12h.01M18 12h.01"></path>
+                      </svg>
+                    </span>
+                    <span class="input-prefix">Bs.</span>
+                    <input
+                      type="number"
+                      id="stockTotalCost"
+                      name="totalCost"
+                      class="form-input has-prefix"
+                      placeholder="0.00"
+                      min="0.01"
+                      step="0.01"
+                      required
+                    />
+                  </div>
+                  <span class="field-error" id="error-stockTotalCost" role="alert"></span>
+                </div>
+              </div>
+
+              <!-- Previsualización de Costo Unitario Estimado en Bs. -->
+              <div class="live-preview-bar" aria-live="polite">
+                <div class="preview-metric">
+                  <span class="metric-label">Botellas / Unidades a Sumar</span>
+                  <strong class="metric-value" id="previewStockUnits">0 uds.</strong>
+                </div>
+                <div class="preview-metric">
+                  <span class="metric-label">Costo Unitario Calculado</span>
+                  <strong class="metric-value" id="previewStockUnitCost">Bs. 0.00 / ud.</strong>
+                </div>
+              </div>
+
+              <button type="submit" class="btn-submit" id="btnUpdateStock">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <span>Actualizar Stock</span>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Resumen rápido de productos críticos -->
+        <aside class="summary-card" aria-label="Sugerencias de reposición">
+          <div class="summary-header">
+            <h3 class="summary-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              Prioridad de Reposición
+            </h3>
+          </div>
+          <ul class="activity-list" id="quickRestockList"></ul>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         VISTA 3: DASHBOARD & INVENTARIO
+         ========================================== -->
+    <section id="view-dashboard" class="view-section" role="tabpanel" aria-labelledby="tab-dashboard">
+      <div class="dashboard-container">
+
+        <!-- 1. Filtro por Fechas (Desde / Hasta + Rango Rápido) -->
+        <div class="filter-bar">
+          <div class="filter-bar-inner">
+            <div class="filter-title-group">
+              <div class="filter-icon-box" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+              </div>
+              <div>
+                <h2>Analítica & Control de Inventario</h2>
+                <p id="filterPeriodSubtitle">Mostrando métricas del período seleccionado</p>
+              </div>
+            </div>
+
+            <div class="filter-controls">
+              <!-- Botones rápidos de periodo -->
+              <div class="preset-pills" role="group" aria-label="Rangos rápidos de fecha">
+                <button type="button" class="preset-pill" data-range="today">Hoy</button>
+                <button type="button" class="preset-pill" data-range="7d">7 Días</button>
+                <button type="button" class="preset-pill active" data-range="month">Este Mes</button>
+                <button type="button" class="preset-pill" data-range="all">Todo</button>
+              </div>
+
+              <!-- Selectores Desde / Hasta -->
+              <div class="date-inputs-group">
+                <div class="date-field">
+                  <label for="filterDateFrom">Desde</label>
+                  <input type="date" id="filterDateFrom" />
+                </div>
+                <div class="date-field">
+                  <label for="filterDateTo">Hasta</label>
+                  <input type="date" id="filterDateTo" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Tarjetas de Métricas Principales (en Bs.) -->
+        <div class="metrics-grid">
+          <!-- Ingresos por Ventas -->
+          <article class="metric-card">
+            <div class="metric-card-inner">
+              <div>
+                <div class="metric-top">
+                  <span class="metric-name">Ingresos por Ventas</span>
+                  <div class="metric-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+                      <circle cx="12" cy="12" r="2"></circle>
+                      <path d="M6 12h.01M18 12h.01"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div class="metric-number" id="dashTotalRevenue">Bs. 0.00</div>
+              </div>
+              <div>
+                <div class="metric-footer">
+                  <span id="dashSalesCountText">0 ventas en rango</span>
+                  <span class="metric-pill">Facturación</span>
+                </div>
+                <div class="metric-progress-track">
+                  <div class="metric-progress-fill" id="barRevenue" style="width: 78%;"></div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Ganancia Neta -->
+          <article class="metric-card">
+            <div class="metric-card-inner">
+              <div>
+                <div class="metric-top">
+                  <span class="metric-name">Ganancia Neta</span>
+                  <div class="metric-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                      <polyline points="17 6 23 6 23 12"></polyline>
+                    </svg>
+                  </div>
+                </div>
+                <div class="metric-number" id="dashNetProfit">Bs. 0.00</div>
+              </div>
+              <div>
+                <div class="metric-footer">
+                  <span>Margen promedio</span>
+                  <span class="metric-pill" id="dashMarginBadge">0%</span>
+                </div>
+                <div class="metric-progress-track">
+                  <div class="metric-progress-fill" id="barProfit" style="width: 64%;"></div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Botellas / Unidades Vendidas -->
+          <article class="metric-card">
+            <div class="metric-card-inner">
+              <div>
+                <div class="metric-top">
+                  <span class="metric-name">Botellas Vendidas</span>
+                  <div class="metric-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                      <line x1="3" y1="6" x2="21" y2="6"></line>
+                      <path d="M16 10a4 4 0 0 1-8 0"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div class="metric-number" id="dashUnitsSold">0</div>
+              </div>
+              <div>
+                <div class="metric-footer">
+                  <span id="dashAvgTicketText">Ticket prom: Bs. 0.00</span>
+                  <span class="metric-pill">Rotación</span>
+                </div>
+                <div class="metric-progress-track">
+                  <div class="metric-progress-fill" id="barUnits" style="width: 70%;"></div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Valor de Inventario Actual -->
+          <article class="metric-card">
+            <div class="metric-card-inner">
+              <div>
+                <div class="metric-top">
+                  <span class="metric-name">Valor en Bodega (Costo)</span>
+                  <div class="metric-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div class="metric-number" id="dashInventoryValue">Bs. 0.00</div>
+              </div>
+              <div>
+                <div class="metric-footer">
+                  <span id="dashTotalBottlesText">0 botellas en stock</span>
+                  <span class="metric-pill" id="dashCatalogCount">0 etiquetas</span>
+                </div>
+                <div class="metric-progress-track">
+                  <div class="metric-progress-fill" style="width: 85%;"></div>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- 3. Panel de 'Estado de Stock' con las 2 Alertas Visuales -->
+        <div class="stock-status-section">
+          <div class="stock-status-inner">
+            <div class="section-heading">
+              <div class="section-heading-left">
+                <h3>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--rose-gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                  </svg>
+                  Panel de Estado de Stock
+                </h3>
+                <p>Monitoreo inteligente de reposición urgente y capital inmovilizado en Licorería Emi.</p>
+              </div>
+            </div>
+
+            <div class="alerts-grid">
+              <!-- Alerta 1: Productos con Stock Bajo -->
+              <div class="alert-panel low-stock-panel">
+                <div class="alert-panel-header">
+                  <div class="alert-title-wrap">
+                    <div class="alert-badge-icon critical" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                      </svg>
+                    </div>
+                    <div>
+                      <h4>Productos con Stock Bajo</h4>
+                      <span>Unidades por debajo del stock mínimo de seguridad</span>
+                    </div>
+                  </div>
+                  <span class="alert-count-chip critical" id="lowStockBadgeCount">0 críticos</span>
+                </div>
+
+                <ul class="alert-items-list" id="lowStockList"></ul>
+              </div>
+
+              <!-- Alerta 2: Productos de Baja Rotación -->
+              <div class="alert-panel slow-moving-panel">
+                <div class="alert-panel-header">
+                  <div class="alert-title-wrap">
+                    <div class="alert-badge-icon stagnant" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                    </div>
+                    <div>
+                      <h4>Productos de Baja Rotación</h4>
+                      <span>Etiquetas sin ventas recientes o con movimiento estancado</span>
+                    </div>
+                  </div>
+                  <span class="alert-count-chip stagnant" id="slowMovingBadgeCount">0 sin rotación</span>
+                </div>
+
+                <ul class="alert-items-list" id="slowMovingList"></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Detalle de Ventas en el Rango de Fechas Seleccionado -->
+        <div class="sales-breakdown-card">
+          <div class="sales-breakdown-inner">
+            <div class="section-heading" style="margin-bottom: 14px;">
+              <div class="section-heading-left">
+                <h3>Historial de Ventas</h3>
+                <p>Operaciones registradas en Bolivianos (Bs.).</p>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="luxury-table">
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio Venta (Bs.)</th>
+                    <th>Total Venta (Bs.)</th>
+                    <th>Ganancia Neta (Bs.)</th>
+                  </tr>
+                </thead>
+                <tbody id="filteredSalesTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  <!-- Contenedor de Notificaciones Toast -->
+  <div class="toast-container" id="toastContainer" aria-live="assertive"></div>
+
+  <!-- ==========================================
+       LÓGICA SPA, CONSUMO DE API REAL Y VALIDACIÓN
+       ========================================== -->
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxAOxFQVdHn6R5-r-a5h3CssXBCVk1T99cWcxVVWJvwzr7w1rKEGeMjsZAeBQOi0IM8/exec';
+
+    /**
+     * Estado en memoria de los datos recibidos desde la API
+     */
+    let dashboardState = {
+      resumen: { ingresos: 0, ganancia: 0 },
+      productos: [],
+      stockBajo: [],
+      bajaRotacion: [],
+      ventas: []
+    };
+
+    /**
+     * Utilidad para generar fechas relativas a hoy en formato YYYY-MM-DD
+     */
+    function getRelativeDateStr(daysAgo) {
+      const d = new Date();
+      d.setDate(d.getDate() - daysAgo);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    /**
+     * Formateador de moneda regional en Bolivianos (Bs.)
+     */
+    function formatCurrency(value) {
+      const num = Number(value) || 0;
+      return 'Bs. ' + num.toLocaleString('es-BO', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str ?? '';
+      return div.innerHTML;
+    }
+
+    /**
+     * 1. FUNCIÓN ASÍNCRONA PARA CARGAR DATOS Y PRODUCTOS DESDE LA API AL INICIAR
+     * La API devuelve un JSON con:
+     * - data.productos: [{ nombre: 'Cerveza Paceña', costo: 12.00, precio: 16.00 }]
+     * - data.resumen: { ingresos: 759, ganancia: 292.9 }
+     * - data.stockBajo: [{ producto: 'Gin', stock: 2 }]
+     * - data.ventas: [{ fecha: '2026-10-23', producto: 'Gin', cantidad: 3, ingreso: 79.5, ganancia: 31.5 }]
+     */
+    async function cargarDatosDashboard() {
+      try {
+        const response = await fetch(API_URL + '?action=getDashboardData');
+        if (!response.ok) {
+          throw new Error(`Error HTTP: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        dashboardState = {
+          resumen: data.resumen || { ingresos: 0, ganancia: 0 },
+          productos: Array.isArray(data.productos) ? data.productos : [],
+          stockBajo: Array.isArray(data.stockBajo) ? data.stockBajo : [],
+          bajaRotacion: Array.isArray(data.bajaRotacion) ? data.bajaRotacion : [],
+          ventas: Array.isArray(data.ventas) ? data.ventas : []
+        };
+
+        cargarOpcionesProductos(dashboardState.productos);
+        pintarDashboard(dashboardState);
+        sincronizarPanelesLaterales(dashboardState);
+      } catch (error) {
+        console.error('Error al conectar con getDashboardData:', error);
+        cargarOpcionesProductos(dashboardState.productos);
+        pintarDashboard(dashboardState);
+      }
+    }
+
+    /**
+     * Recorre el array data.productos ({ nombre: 'Cerveza Paceña', costo: 12.00, precio: 16.00 })
+     * y genera dinámicamente las etiquetas <option> dentro del <select> del formulario de ventas
+     * (y del formulario de ingresos), guardando data-costo y data-precio en cada <option>.
+     */
+    function cargarOpcionesProductos(productosArray) {
+      const saleSelect = document.getElementById('saleProductName');
+      const stockSelect = document.getElementById('stockProductSelect');
+
+      const seleccionPreviaVenta = saleSelect.value;
+      const seleccionPreviaStock = stockSelect.value;
+
+      // Reiniciar ambos <select> con su opción por defecto
+      saleSelect.innerHTML = '<option value="">Selecciona una bebida del catálogo...</option>';
+      stockSelect.innerHTML = '<option value="">Selecciona un producto existente del catálogo...</option>';
+
+      if (!Array.isArray(productosArray)) return;
+
+      productosArray.forEach(item => {
+        const nombre = item.nombre || item.producto || '';
+        if (!nombre) return;
+
+        const costo = Number(item.costo ?? item.costoCompra ?? 0).toFixed(2);
+        const precio = Number(item.precio ?? item.precioVenta ?? 0).toFixed(2);
+
+        // Crear <option> para el <select> de 'Registrar Venta'
+        const optionVenta = document.createElement('option');
+        optionVenta.value = nombre;
+        optionVenta.textContent = `${nombre} (Bs. ${precio})`;
+        optionVenta.setAttribute('data-costo', costo);
+        optionVenta.setAttribute('data-precio', precio);
+        saleSelect.appendChild(optionVenta);
+
+        // Crear <option> para el <select> de 'Registrar Ingreso'
+        const optionStock = document.createElement('option');
+        optionStock.value = nombre;
+        optionStock.textContent = nombre;
+        optionStock.setAttribute('data-costo', costo);
+        optionStock.setAttribute('data-precio', precio);
+        stockSelect.appendChild(optionStock);
+      });
+
+      if (seleccionPreviaVenta) saleSelect.value = seleccionPreviaVenta;
+      if (seleccionPreviaStock) stockSelect.value = seleccionPreviaStock;
+    }
+
+    /**
+     * Pinta dinámicamente las tarjetas de 'Ingresos por Ventas', 'Ganancia Neta',
+     * la lista de 'Productos con Stock Bajo' y la tabla de 'Historial de Ventas' en Bs.
+     */
+    function pintarDashboard(data, filtrarPorFechas = false) {
+      const resumen = data.resumen || { ingresos: 0, ganancia: 0 };
+      const stockBajo = Array.isArray(data.stockBajo) ? data.stockBajo : [];
+      const bajaRotacion = Array.isArray(data.bajaRotacion) ? data.bajaRotacion : [];
+      let ventas = Array.isArray(data.ventas) ? data.ventas : [];
+
+      const fromStr = document.getElementById('filterDateFrom').value;
+      const toStr = document.getElementById('filterDateTo').value;
+
+      if (filtrarPorFechas && fromStr && toStr) {
+        ventas = ventas.filter(v => v.fecha >= fromStr && v.fecha <= toStr);
+        document.getElementById('filterPeriodSubtitle').textContent =
+          `Período consultado: ${fromStr} al ${toStr}`;
+      } else {
+        document.getElementById('filterPeriodSubtitle').textContent =
+          'Mostrando datos en tiempo real desde la API';
+      }
+
+      const ingresosMostrar = filtrarPorFechas
+        ? ventas.reduce((acc, v) => acc + (Number(v.ingreso) || 0), 0)
+        : Number(resumen.ingresos) || 0;
+
+      const gananciaMostrar = filtrarPorFechas
+        ? ventas.reduce((acc, v) => acc + (Number(v.ganancia) || 0), 0)
+        : Number(resumen.ganancia) || 0;
+
+      const totalBotellasVendidas = ventas.reduce((acc, v) => acc + (Number(v.cantidad) || 0), 0);
+      const margenPromedio = ingresosMostrar > 0
+        ? Math.round((gananciaMostrar / ingresosMostrar) * 100)
+        : 0;
+      const ticketPromedio = ventas.length > 0 ? ingresosMostrar / ventas.length : 0;
+
+      // 1) Pintar Tarjetas en Bolivianos (Bs.)
+      document.getElementById('dashTotalRevenue').textContent = formatCurrency(ingresosMostrar);
+      document.getElementById('dashSalesCountText').textContent = `${ventas.length} ventas registradas`;
+
+      document.getElementById('dashNetProfit').textContent = formatCurrency(gananciaMostrar);
+      document.getElementById('dashMarginBadge').textContent = `${margenPromedio}% margen`;
+
+      document.getElementById('dashUnitsSold').textContent = `${totalBotellasVendidas} uds.`;
+      document.getElementById('dashAvgTicketText').textContent = `Ticket prom: ${formatCurrency(ticketPromedio)}`;
+
+      const totalUnidadesStockBajo = stockBajo.reduce((acc, item) => acc + (Number(item.stock) || 0), 0);
+      document.getElementById('dashInventoryValue').textContent =
+        resumen.valorInventario !== undefined ? formatCurrency(resumen.valorInventario) : `${stockBajo.length} alertas`;
+      document.getElementById('dashTotalBottlesText').textContent =
+        `${totalUnidadesStockBajo} uds. en stock crítico`;
+      document.getElementById('dashCatalogCount').textContent =
+        `${(Array.isArray(data.productos) && data.productos.length) ? data.productos.length : stockBajo.length} productos`;
+
+      // Actualizar barras visuales de las tarjetas
+      document.getElementById('barRevenue').style.width =
+        `${Math.min(100, Math.max(12, (ingresosMostrar / 1000) * 100))}%`;
+      document.getElementById('barProfit').style.width =
+        `${Math.min(100, Math.max(12, margenPromedio * 1.8))}%`;
+      document.getElementById('barUnits').style.width =
+        `${Math.min(100, Math.max(12, (totalBotellasVendidas / 30) * 100))}%`;
+
+      // 2) Pintar Lista de 'Productos con Stock Bajo'
+      document.getElementById('lowStockBadgeCount').textContent = `${stockBajo.length} críticos`;
+      const lowStockListEl = document.getElementById('lowStockList');
+
+      if (stockBajo.length === 0) {
+        lowStockListEl.innerHTML = `
+          <li class="alert-item-card">
+            <div class="alert-item-top">
+              <div class="alert-product-name">Sin alertas de stock bajo</div>
+            </div>
+            <div class="alert-item-bottom">
+              <span>Todos los productos cuentan con stock suficiente.</span>
+            </div>
+          </li>
+        `;
+      } else {
+        lowStockListEl.innerHTML = stockBajo.map(item => {
+          const nombreProd = item.producto || item.nombre || 'Producto';
+          const stockActual = Number(item.stock) || 0;
+          const stockMinimo = Number(item.minStock) || 10;
+          const pct = Math.min(100, Math.max(8, Math.round((stockActual / stockMinimo) * 100)));
+
+          return `
+            <li class="alert-item-card">
+              <div class="alert-item-top">
+                <div>
+                  <div class="alert-product-name">${escapeHtml(nombreProd)}</div>
+                  <div class="alert-product-category">Alerta de reposición inmediata</div>
+                </div>
+                <span class="status-tag urgent">Stock: ${stockActual} uds.</span>
+              </div>
+              <div class="alert-item-bottom">
+                <span>Nivel crítico de inventario</span>
+                <div class="stock-level-bar" title="Stock actual: ${stockActual}">
+                  <div class="stock-level-fill" style="width: ${pct}%;"></div>
+                </div>
+                <button type="button" class="btn-quick-action" data-restock-product="${escapeHtml(nombreProd)}">
+                  + Reponer Stock
+                </button>
+              </div>
+            </li>
+          `;
+        }).join('');
+      }
+
+      // Conectar botón rápido "+ Reponer Stock"
+      lowStockListEl.querySelectorAll('[data-restock-product]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const prodName = btn.getAttribute('data-restock-product');
+          switchSpaView('view-ingreso');
+          cambiarModoIngresoProducto('existing');
+
+          const stockSelect = document.getElementById('stockProductSelect');
+          const existeEnSelect = Array.from(stockSelect.options).some(opt => opt.value === prodName);
+
+          if (existeEnSelect) {
+            stockSelect.value = prodName;
+          } else {
+            const nuevaOpt = document.createElement('option');
+            nuevaOpt.value = prodName;
+            nuevaOpt.textContent = prodName;
+            stockSelect.appendChild(nuevaOpt);
+            stockSelect.value = prodName;
+          }
+
+          document.getElementById('stockQuantity').focus();
+          showToast('Reposición rápida', `Completa la cantidad ingresada para ${prodName}.`);
+        });
+      });
+
+      // 3) Pintar Lista de 'Productos de Baja Rotación'
+      const slowMovingListEl = document.getElementById('slowMovingList');
+      document.getElementById('slowMovingBadgeCount').textContent = `${bajaRotacion.length} sin rotación`;
+
+      if (bajaRotacion.length === 0) {
+        slowMovingListEl.innerHTML = `
+          <li class="alert-item-card">
+            <div class="alert-item-top">
+              <div class="alert-product-name">Sin productos estancados</div>
+            </div>
+            <div class="alert-item-bottom">
+              <span>El catálogo presenta rotación activa en el período actual.</span>
+            </div>
+          </li>
+        `;
+      } else {
+        slowMovingListEl.innerHTML = bajaRotacion.map(item => {
+          const nombreProd = item.producto || item.nombre || 'Producto';
+          const dias = Number(item.diasSinVenta || item.daysWithoutSale || 30);
+          const stockEstancado = Number(item.stock || 0);
+          return `
+            <li class="alert-item-card">
+              <div class="alert-item-top">
+                <div>
+                  <div class="alert-product-name">${escapeHtml(nombreProd)}</div>
+                  <div class="alert-product-category">Stock acumulado: ${stockEstancado} uds.</div>
+                </div>
+                <span class="status-tag slow">${dias} días sin venta</span>
+              </div>
+            </li>
+          `;
+        }).join('');
+      }
+
+      // Actualizar contador de alertas en la pestaña superior
+      document.getElementById('navAlertCount').textContent = stockBajo.length + bajaRotacion.length;
+
+      // 4) Pintar Tabla de 'Historial de Ventas' en Bs.
+      const tbody = document.getElementById('filteredSalesTableBody');
+      if (ventas.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 24px;">
+              No hay ventas registradas para mostrar.
+            </td>
+          </tr>
+        `;
+      } else {
+        tbody.innerHTML = ventas.map(venta => {
+          const cantidad = Number(venta.cantidad) || 0;
+          const ingreso = Number(venta.ingreso) || 0;
+          const ganancia = Number(venta.ganancia) || 0;
+          const precioUnitario = venta.precioVenta !== undefined
+            ? Number(venta.precioVenta)
+            : (cantidad > 0 ? ingreso / cantidad : 0);
+
+          return `
+            <tr>
+              <td><strong>${escapeHtml(venta.fecha)}</strong></td>
+              <td>${escapeHtml(venta.producto)}</td>
+              <td>${cantidad} uds.</td>
+              <td>${formatCurrency(precioUnitario)}</td>
+              <td><strong>${formatCurrency(ingreso)}</strong></td>
+              <td style="color: var(--rose-gold-dark); font-weight: 700;">+${formatCurrency(ganancia)}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
+
+    /**
+     * Sincroniza las listas laterales de apoyo con los datos provenientes de la API
+     */
+    function sincronizarPanelesLaterales(data) {
+      const ventas = Array.isArray(data.ventas) ? data.ventas : [];
+      const stockBajo = Array.isArray(data.stockBajo) ? data.stockBajo : [];
+
+      const recentList = document.getElementById('recentSalesSidebar');
+      if (ventas.length === 0) {
+        recentList.innerHTML = `<li class="activity-empty">Sin ventas recientes.</li>`;
+      } else {
+        recentList.innerHTML = ventas.slice(0, 6).map(venta => `
+          <li class="activity-item">
+            <div class="activity-item-left">
+              <span class="activity-dot sale">V</span>
+              <div class="activity-info">
+                <p>${escapeHtml(venta.producto)}</p>
+                <small>${escapeHtml(venta.fecha)} • ${Number(venta.cantidad) || 0} ud(s)</small>
+              </div>
+            </div>
+            <span class="activity-amount">+${formatCurrency(venta.ingreso)}</span>
+          </li>
+        `).join('');
+      }
+
+      const quickRestock = document.getElementById('quickRestockList');
+      if (stockBajo.length === 0) {
+        quickRestock.innerHTML = `<li class="activity-empty">Sin alertas de stock bajo.</li>`;
+      } else {
+        quickRestock.innerHTML = stockBajo.slice(0, 6).map(item => `
+          <li class="activity-item">
+            <div class="activity-item-left">
+              <span class="activity-dot stock">${Number(item.stock) || 0}</span>
+              <div class="activity-info">
+                <p>${escapeHtml(item.producto || item.nombre)}</p>
+                <small>Stock crítico disponible: ${Number(item.stock) || 0} uds.</small>
+              </div>
+            </div>
+            <span class="activity-amount">Reponer</span>
+          </li>
+        `).join('');
+      }
+    }
+
+    /**
+     * 2. NAVEGACIÓN SPA (Alternar entre las 3 vistas sin recargar la página)
+     */
+    function switchSpaView(targetId) {
+      const tabs = document.querySelectorAll('.nav-tab');
+      const views = document.querySelectorAll('.view-section');
+
+      tabs.forEach(tab => {
+        const isMatch = tab.dataset.target === targetId;
+        tab.classList.toggle('active', isMatch);
+        tab.setAttribute('aria-selected', isMatch ? 'true' : 'false');
+      });
+
+      views.forEach(view => {
+        view.classList.toggle('active', view.id === targetId);
+      });
+
+      if (targetId === 'view-dashboard') {
+        cargarDatosDashboard();
+      }
+    }
+
+    function initSpaNavigation() {
+      const tabs = document.querySelectorAll('.nav-tab');
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          switchSpaView(tab.dataset.target);
+        });
+      });
+
+      document.getElementById('brandLink').addEventListener('click', (e) => {
+        e.preventDefault();
+        switchSpaView('view-dashboard');
+      });
+    }
+
+    /**
+     * 3. SWITCH DE '¿PRODUCTO EXISTENTE?' O '¿NUEVO PRODUCTO?' EN REGISTRAR INGRESO
+     */
+    function obtenerModoIngresoActual() {
+      const checkedRadio = document.querySelector('input[name="stockProductMode"]:checked');
+      return checkedRadio ? checkedRadio.value : 'existing';
+    }
+
+    function cambiarModoIngresoProducto(modo) {
+      const radioExisting = document.querySelector('input[name="stockProductMode"][value="existing"]');
+      const radioNew = document.querySelector('input[name="stockProductMode"][value="new"]');
+      const labelExisting = document.getElementById('labelModeExisting');
+      const labelNew = document.getElementById('labelModeNew');
+      const wrapperExisting = document.getElementById('stockExistingWrapper');
+      const wrapperNew = document.getElementById('stockNewWrapper');
+      const labelEl = document.getElementById('stockProductLabel');
+      const errName = document.getElementById('error-stockProductName');
+
+      clearFieldError(document.getElementById('stockProductSelect'), errName);
+      clearFieldError(document.getElementById('stockProductNameInput'), errName);
+
+      if (modo === 'new') {
+        radioNew.checked = true;
+        labelNew.classList.add('active');
+        labelExisting.classList.remove('active');
+        wrapperExisting.classList.add('hidden-control');
+        wrapperNew.classList.remove('hidden-control');
+        labelEl.setAttribute('for', 'stockProductNameInput');
+      } else {
+        radioExisting.checked = true;
+        labelExisting.classList.add('active');
+        labelNew.classList.remove('active');
+        wrapperNew.classList.add('hidden-control');
+        wrapperExisting.classList.remove('hidden-control');
+        labelEl.setAttribute('for', 'stockProductSelect');
+      }
+    }
+
+    function initStockProductModeSwitch() {
+      const radios = document.querySelectorAll('input[name="stockProductMode"]');
+      radios.forEach(radio => {
+        radio.addEventListener('change', () => {
+          cambiarModoIngresoProducto(radio.value);
+        });
+      });
+    }
+
+    /**
+     * 4. FILTROS DE FECHA EN EL DASHBOARD
+     */
+    function setDateRangePreset(rangeKey) {
+      const fromInput = document.getElementById('filterDateFrom');
+      const toInput = document.getElementById('filterDateTo');
+      const todayStr = getRelativeDateStr(0);
+
+      if (rangeKey === 'today') {
+        fromInput.value = todayStr;
+        toInput.value = todayStr;
+      } else if (rangeKey === '7d') {
+        fromInput.value = getRelativeDateStr(6);
+        toInput.value = todayStr;
+      } else if (rangeKey === 'month') {
+        fromInput.value = getRelativeDateStr(29);
+        toInput.value = todayStr;
+      } else if (rangeKey === 'all') {
+        fromInput.value = '';
+        toInput.value = '';
+      }
+
+      document.querySelectorAll('.preset-pill').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.range === rangeKey);
+      });
+
+      pintarDashboard(dashboardState, rangeKey !== 'all');
+    }
+
+    function initDashboardFilters() {
+      const fromInput = document.getElementById('filterDateFrom');
+      const toInput = document.getElementById('filterDateTo');
+
+      fromInput.value = getRelativeDateStr(29);
+      toInput.value = getRelativeDateStr(0);
+
+      document.querySelectorAll('.preset-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          setDateRangePreset(btn.dataset.range);
+        });
+      });
+
+      const onCustomDateChange = () => {
+        document.querySelectorAll('.preset-pill').forEach(btn => btn.classList.remove('active'));
+        pintarDashboard(dashboardState, true);
+      };
+
+      fromInput.addEventListener('change', onCustomDateChange);
+      toInput.addEventListener('change', onCustomDateChange);
+    }
+
+    /**
+     * 5. VALIDACIÓN DE FORMULARIOS Y ENVÍO POST A LA API REAL
+     */
+    function setFieldError(inputEl, errorEl, message) {
+      inputEl.classList.add('input-error');
+      inputEl.setAttribute('aria-invalid', 'true');
+      errorEl.textContent = message;
+      errorEl.classList.add('visible');
+    }
+
+    function clearFieldError(inputEl, errorEl) {
+      inputEl.classList.remove('input-error');
+      inputEl.removeAttribute('aria-invalid');
+      errorEl.textContent = '';
+      errorEl.classList.remove('visible');
+    }
+
+    function validateSaleForm() {
+      const nameSelect = document.getElementById('saleProductName');
+      const qtyInput = document.getElementById('saleQuantity');
+      const priceInput = document.getElementById('saleUnitPrice');
+      const costInput = document.getElementById('saleUnitCost');
+
+      const errName = document.getElementById('error-saleProductName');
+      const errQty = document.getElementById('error-saleQuantity');
+      const errPrice = document.getElementById('error-saleUnitPrice');
+      const errCost = document.getElementById('error-saleUnitCost');
+
+      clearFieldError(nameSelect, errName);
+      clearFieldError(qtyInput, errQty);
+      clearFieldError(priceInput, errPrice);
+      clearFieldError(costInput, errCost);
+
+      let isValid = true;
+
+      const producto = nameSelect.value.trim();
+      const cantidad = Number(qtyInput.value);
+      const precioVenta = Number(priceInput.value);
+      const costoCompra = costInput.value.trim() === '' ? NaN : Number(costInput.value);
+
+      if (!producto) {
+        setFieldError(nameSelect, errName, 'Selecciona una bebida del menú desplegable.');
+        isValid = false;
+      }
+
+      if (!Number.isInteger(cantidad) || cantidad <= 0) {
+        setFieldError(qtyInput, errQty, 'Ingresa una cantidad entera mayor a 0.');
+        isValid = false;
+      }
+
+      if (Number.isNaN(precioVenta) || precioVenta <= 0) {
+        setFieldError(priceInput, errPrice, 'Ingresa un precio de venta válido en Bs. mayor a 0.');
+        isValid = false;
+      }
+
+      if (Number.isNaN(costoCompra) || costoCompra < 0) {
+        setFieldError(costInput, errCost, 'Selecciona un producto válido para cargar su costo en Bs.');
+        isValid = false;
+      }
+
+      if (!isValid) {
+        return { isValid: false, payload: null };
+      }
+
+      const ingreso = Number((cantidad * precioVenta).toFixed(2));
+      const costoTotal = Number((cantidad * costoCompra).toFixed(2));
+      const ganancia = Number((ingreso - costoTotal).toFixed(2));
+
+      return {
+        isValid: true,
+        payload: {
+          action: 'registrarVenta',
+          fecha: getRelativeDateStr(0),
+          producto,
+          cantidad,
+          precioVenta: Number(precioVenta.toFixed(2)),
+          costoCompra: Number(costoCompra.toFixed(2)),
+          ingreso,
+          costoTotal,
+          ganancia,
+          productName: producto,
+          quantitySold: cantidad,
+          unitSalePrice: Number(precioVenta.toFixed(2)),
+          unitPurchaseCost: Number(costoCompra.toFixed(2))
+        }
+      };
+    }
+
+    function validateStockForm() {
+      const modo = obtenerModoIngresoActual();
+      const activeNameControl = modo === 'new'
+        ? document.getElementById('stockProductNameInput')
+        : document.getElementById('stockProductSelect');
+
+      const qtyInput = document.getElementById('stockQuantity');
+      const costInput = document.getElementById('stockTotalCost');
+
+      const errName = document.getElementById('error-stockProductName');
+      const errQty = document.getElementById('error-stockQuantity');
+      const errCost = document.getElementById('error-stockTotalCost');
+
+      clearFieldError(document.getElementById('stockProductSelect'), errName);
+      clearFieldError(document.getElementById('stockProductNameInput'), errName);
+      clearFieldError(qtyInput, errQty);
+      clearFieldError(costInput, errCost);
+
+      let isValid = true;
+
+      const producto = activeNameControl.value.trim();
+      const cantidad = Number(qtyInput.value);
+      const costoTotal = Number(costInput.value);
+
+      if (!producto || producto.length < 2) {
+        const msg = modo === 'new'
+          ? 'Escribe el nombre del nuevo producto (mín. 2 caracteres).'
+          : 'Selecciona un producto existente del catálogo.';
+        setFieldError(activeNameControl, errName, msg);
+        isValid = false;
+      }
+
+      if (!Number.isInteger(cantidad) || cantidad <= 0) {
+        setFieldError(qtyInput, errQty, 'Ingresa una cantidad entera mayor a 0.');
+        isValid = false;
+      }
+
+      if (Number.isNaN(costoTotal) || costoTotal <= 0) {
+        setFieldError(costInput, errCost, 'Ingresa un costo total en Bs. mayor a 0.');
+        isValid = false;
+      }
+
+      if (!isValid) {
+        return { isValid: false, payload: null };
+      }
+
+      const costoUnitario = Number((costoTotal / cantidad).toFixed(2));
+
+      return {
+        isValid: true,
+        payload: {
+          action: 'registrarIngreso',
+          tipoProducto: modo === 'new' ? 'nuevo' : 'existente',
+          esNuevoProducto: modo === 'new',
+          fecha: getRelativeDateStr(0),
+          producto,
+          cantidad,
+          costoTotal: Number(costoTotal.toFixed(2)),
+          costoUnitario,
+          productName: producto,
+          quantityEntered: cantidad,
+          totalCost: Number(costoTotal.toFixed(2))
+        }
+      };
+    }
+
+    /**
+     * Función para guardar una venta haciendo POST a API_URL con action=registrarVenta
+     */
+    async function guardarVenta(datosVenta) {
+      const response = await fetch(API_URL + '?action=registrarVenta', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify({
+          action: 'registrarVenta',
+          ...datosVenta
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error al registrar la venta (${response.status})`);
+      }
+
+      return await response.json().catch(() => ({ status: 'ok' }));
+    }
+
+    /**
+     * Función para registrar ingreso de stock haciendo POST a API_URL
+     */
+    async function guardarIngresoStock(datosIngreso) {
+      const response = await fetch(API_URL + '?action=registrarIngreso', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify({
+          action: 'registrarIngreso',
+          ...datosIngreso
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error al actualizar el stock (${response.status})`);
+      }
+
+      return await response.json().catch(() => ({ status: 'ok' }));
+    }
+
+    /**
+     * 6. EVENTO CHANGE DEL <select> DE VENTAS, BLOQUEO READONLY DE COSTO Y CÁLCULOS EN VIVO
+     */
+    function initLiveCalculations() {
+      const saleSelect = document.getElementById('saleProductName');
+      const salePriceInput = document.getElementById('saleUnitPrice');
+      const saleCostInput = document.getElementById('saleUnitCost');
+      const saleQtyInput = document.getElementById('saleQuantity');
+
+      // Asegurar por JS que el Costo de Compra permanezca protegido (readonly)
+      saleCostInput.readOnly = true;
+
+      const previewSaleTotal = document.getElementById('previewSaleTotal');
+      const previewSaleCost = document.getElementById('previewSaleCost');
+      const previewSaleProfit = document.getElementById('previewSaleProfit');
+
+      function updateSalePreview() {
+        const qty = Math.max(0, Number(saleQtyInput.value) || 0);
+        const price = Math.max(0, Number(salePriceInput.value) || 0);
+        const cost = Math.max(0, Number(saleCostInput.value) || 0);
+
+        const totalSale = qty * price;
+        const totalCost = qty * cost;
+        const profit = totalSale - totalCost;
+
+        previewSaleTotal.textContent = formatCurrency(totalSale);
+        previewSaleCost.textContent = formatCurrency(totalCost);
+        previewSaleProfit.textContent = formatCurrency(profit);
+      }
+
+      // Evento change en el <select>: lee data-precio y data-costo de la opción seleccionada
+      // y rellena automáticamente el 'Precio de Venta' (editable) y 'Costo de Compra' (bloqueado).
+      saleSelect.addEventListener('change', function () {
+        const opcionSeleccionada = this.options[this.selectedIndex];
+
+        if (!opcionSeleccionada || !this.value) {
+          salePriceInput.value = '';
+          saleCostInput.value = '';
+          updateSalePreview();
+          return;
+        }
+
+        const precio = opcionSeleccionada.getAttribute('data-precio');
+        const costo = opcionSeleccionada.getAttribute('data-costo');
+
+        salePriceInput.value = precio !== null && precio !== '' ? Number(precio).toFixed(2) : '';
+        saleCostInput.value = costo !== null && costo !== '' ? Number(costo).toFixed(2) : '';
+
+        clearFieldError(salePriceInput, document.getElementById('error-saleUnitPrice'));
+        clearFieldError(saleCostInput, document.getElementById('error-saleUnitCost'));
+
+        updateSalePreview();
+      });
+
+      saleQtyInput.addEventListener('input', updateSalePreview);
+      salePriceInput.addEventListener('input', updateSalePreview);
+
+      // Cálculos en vivo para Registrar Ingreso en Bs.
+      const stockInputs = ['stockQuantity', 'stockTotalCost'].map(id => document.getElementById(id));
+      const previewStockUnits = document.getElementById('previewStockUnits');
+      const previewStockUnitCost = document.getElementById('previewStockUnitCost');
+
+      function updateStockPreview() {
+        const qty = Math.max(0, parseInt(document.getElementById('stockQuantity').value, 10) || 0);
+        const totalCost = Math.max(0, Number(document.getElementById('stockTotalCost').value) || 0);
+        const unitCost = qty > 0 ? totalCost / qty : 0;
+
+        previewStockUnits.textContent = `${qty} uds.`;
+        previewStockUnitCost.textContent = `${formatCurrency(unitCost)} / ud.`;
+      }
+
+      stockInputs.forEach(input => input.addEventListener('input', updateStockPreview));
+
+      // Limpiar errores al escribir o seleccionar
+      document.querySelectorAll('.form-input').forEach(control => {
+        const clearHandler = () => {
+          if (control.id === 'stockProductSelect' || control.id === 'stockProductNameInput') {
+            clearFieldError(control, document.getElementById('error-stockProductName'));
+          } else {
+            const errEl = document.getElementById(`error-${control.id}`);
+            if (errEl) clearFieldError(control, errEl);
+          }
+        };
+        control.addEventListener('input', clearHandler);
+        control.addEventListener('change', clearHandler);
+      });
+    }
+
+    /**
+     * Mostrar notificación Toast elegante
+     */
+    function showToast(title, message, isError = false) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${isError ? 'error' : ''}`;
+
+      toast.innerHTML = `
+        <div class="toast-icon" aria-hidden="true">
+          ${isError
+            ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`
+            : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`
+          }
+        </div>
+        <div class="toast-body">
+          <h4>${escapeHtml(title)}</h4>
+          <p>${escapeHtml(message)}</p>
+        </div>
+      `;
+
+      container.appendChild(toast);
+      requestAnimationFrame(() => toast.classList.add('show'));
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 320);
+      }, 4000);
+    }
+
+    /**
+     * 7. MANEJO DE SUBMIT DE FORMULARIOS CONECTADOS A LA API
+     */
+    function initFormHandlers() {
+      const saleForm = document.getElementById('saleForm');
+      const stockForm = document.getElementById('stockForm');
+      const btnConfirmSale = document.getElementById('btnConfirmSale');
+      const btnUpdateStock = document.getElementById('btnUpdateStock');
+
+      saleForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const { isValid, payload } = validateSaleForm();
+
+        if (!isValid) {
+          showToast('Revisa los campos', 'Por favor corrige los datos marcados antes de confirmar la venta.', true);
+          return;
+        }
+
+        const originalContent = btnConfirmSale.innerHTML;
+        btnConfirmSale.disabled = true;
+        btnConfirmSale.innerHTML = `<span class="spinner"></span><span>Procesando venta...</span>`;
+
+        try {
+          await guardarVenta(payload);
+
+          showToast(
+            'Venta registrada en Licorería Emi',
+            `${payload.cantidad}x ${payload.producto} por ${formatCurrency(payload.ingreso)}.`
+          );
+
+          saleForm.reset();
+          document.getElementById('previewSaleTotal').textContent = 'Bs. 0.00';
+          document.getElementById('previewSaleCost').textContent = 'Bs. 0.00';
+          document.getElementById('previewSaleProfit').textContent = 'Bs. 0.00';
+
+          // Recargar los datos reales del Dashboard y Catálogo desde la API
+          await cargarDatosDashboard();
+        } catch (error) {
+          showToast('Error al registrar venta', error.message || 'Verifica la conexión con la API.', true);
+        } finally {
+          btnConfirmSale.disabled = false;
+          btnConfirmSale.innerHTML = originalContent;
+        }
+      });
+
+      stockForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const { isValid, payload } = validateStockForm();
+
+        if (!isValid) {
+          showToast('Revisa los campos', 'Por favor completa correctamente los datos de ingreso.', true);
+          return;
+        }
+
+        const originalContent = btnUpdateStock.innerHTML;
+        btnUpdateStock.disabled = true;
+        btnUpdateStock.innerHTML = `<span class="spinner"></span><span>Actualizando stock...</span>`;
+
+        try {
+          await guardarIngresoStock(payload);
+
+          showToast(
+            'Stock actualizado en Bodega',
+            `Se sumaron ${payload.cantidad} uds. de ${payload.producto} al inventario.`
+          );
+
+          stockForm.reset();
+          cambiarModoIngresoProducto('existing');
+          document.getElementById('previewStockUnits').textContent = '0 uds.';
+          document.getElementById('previewStockUnitCost').textContent = 'Bs. 0.00 / ud.';
+
+          // Recargar los datos reales del Dashboard y Catálogo desde la API
+          await cargarDatosDashboard();
+        } catch (error) {
+          showToast('Error al actualizar stock', error.message || 'Verifica la conexión con la API.', true);
+        } finally {
+          btnUpdateStock.disabled = false;
+          btnUpdateStock.innerHTML = originalContent;
+        }
+      });
+    }
+
+    /**
+     * Al cargar la página (DOMContentLoaded), ejecuta fetch(API_URL + '?action=getDashboardData')
+     * mediante cargarDatosDashboard() para llenar el <select> de productos y el Dashboard.
+     */
+    document.addEventListener('DOMContentLoaded', () => {
+      initSpaNavigation();
+      initStockProductModeSwitch();
+      initDashboardFilters();
+      initLiveCalculations();
+      initFormHandlers();
+      cargarDatosDashboard();
+    });
+  </script>
+</body>
+</html>
